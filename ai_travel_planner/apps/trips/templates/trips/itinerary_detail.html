@@ -1,0 +1,1258 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ itinerary.title }} - AI Travel Planner{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<!-- Leaflet Routing Machine CSS (for routes) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="bg-gradient-to-b from-blue-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="info-alert"
+            style="background-color: #bdd8f4; border-left: 4px solid #1d72e8; padding: 8px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; border-radius: 4px;">
+
+            <span>
+                The below mentioned <strong>Total Cost</strong> is per person and it <strong>does not</strong> include
+                flight/train fares .
+                That will be added soon in updates. Wishing you a satisfied trip planning :)
+            </span>
+
+            <button id="close-alert"
+                style="background: none; border: none; font-size: 20px; cursor: pointer; margin-left: 12px;">
+                &times;
+            </button>
+        </div>
+
+
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ itinerary.title }}</h1>
+                    <p class="text-gray-600 text-lg">{{ itinerary.description }}</p>
+                </div>
+                <div class="flex gap-3">
+                    <!-- Version History Button -->
+                    <a href="{% url 'trips:itinerary_versions' itinerary.trip_request.id %}" 
+                    class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow-md flex items-center gap-2">
+                        <i class="fas fa-history"></i>
+                        <span class="hidden md:inline">Version History</span>
+                        <span class="inline md:hidden">Versions</span>
+                        <span class="bg-purple-500 px-2 py-1 rounded-full text-xs font-semibold">
+                            v{{ itinerary.version }}
+                        </span>
+                    </a>
+                    <a href="{% url 'trips:share_itinerary' itinerary.id %}"
+                        class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-50 transition">
+                        <i class="fas fa-share-alt mr-2 mt-3"></i>Share
+                    </a>
+                    <a href="{% url 'trips:export_pdf' itinerary.id %}"
+                        class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
+                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- Trip Overview Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <i class="fas fa-calendar-alt text-blue-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Duration</p>
+                    <p class="text-xl font-bold text-gray-800">{{ trip_request.duration }} Days</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <i class="fas fa-dollar-sign text-green-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Total Cost</p>
+                    <p class="text-xl font-bold text-gray-800">{{ trip_request.currency }} {{ itinerary.total_cost }}
+                    </p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <i class="fas fa-map-pin text-purple-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Activities</p>
+                    <p class="text-xl font-bold text-gray-800">{{ total_activities }}</p>
+                </div>
+                <div class="bg-orange-50 rounded-lg p-4">
+                    <i class="fas fa-star text-orange-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Local Gems</p>
+                    <p class="text-xl font-bold text-gray-800">{{ local_experiences|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Day by Day Itinerary -->
+                {% for day, activities in activities_by_day.items %}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden"
+                    x-data="{ expanded: {% if day == 1 %}true{% else %}false{% endif %} }">
+                    <div @click="expanded = !expanded"
+                        class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 cursor-pointer hover:from-blue-700 hover:to-purple-700 transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold">Day {{ day }}</h2>
+                                <p class="text-blue-100">{{ activities|length }} activities planned</p>
+                            </div>
+                            <i class="fas fa-chevron-down text-2xl transform transition-transform"
+                                :class="expanded ? 'rotate-180' : ''"></i>
+                        </div>
+                    </div>
+
+                    <div x-show="expanded" x-cloak x-transition class="p-6">
+                        <div class="space-y-4">
+                            {% for activity in activities %}
+                            <div
+                                class="flex gap-4 p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition">
+                                <!-- Time -->
+                                <div class="flex-shrink-0 text-center">
+                                    <div class="bg-blue-100 rounded-lg px-3 py-2">
+                                        <p class="text-xs text-gray-600">{{ activity.get_time_slot_display }}</p>
+                                        <p class="font-bold text-blue-600">{{ activity.start_time|time:"g:i A" }}</p>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-500">
+                                        {{ activity.duration_minutes }} min
+                                    </div>
+                                </div>
+
+                                <!-- Activity Details -->
+                                <div class="flex-grow">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-800">{{ activity.name }}</h3>
+                                            <p class="text-sm text-gray-500">
+                                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                                {{ activity.location_name }}
+                                            </p>
+                                        </div>
+                                        <span
+                                            class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
+                                            {{ activity.get_activity_type_display }}
+                                        </span>
+                                    </div>
+
+                                    <p class="text-gray-600 mb-3">{{ activity.description }}</p>
+
+                                    {% if activity.tips %}
+                                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3">
+                                        <p class="text-sm text-yellow-800">
+                                            <i class="fas fa-lightbulb mr-2"></i>
+                                            <strong>Tip:</strong> {{ activity.tips }}
+                                        </p>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-lg font-bold text-green-600">
+                                            <i class="fas fa-dollar-sign mr-1"></i>
+                                            {{ activity.currency }} {{ activity.estimated_cost }}
+                                        </div>
+                                        {% if activity.booking_url %}
+                                        <a href="{{ activity.booking_url }}" target="_blank"
+                                            class="text-sm text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-external-link-alt mr-1"></i>Book Now
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Local Experiences -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-gem text-purple-600 mr-3"></i>
+                        Local Experiences & Hidden Gems
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for experience in local_experiences %}
+                        <div
+                            class="border border-gray-200 rounded-lg p-4 hover:border-purple-400 hover:shadow-md transition">
+                            <div class="flex items-start justify-between mb-2">
+                                <h3 class="font-bold text-gray-800">{{ experience.name }}</h3>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                                    {{ experience.get_category_display }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">{{ experience.description }}</p>
+                            {% if experience.insider_tip %}
+                            <div class="bg-purple-50 border-l-4 border-purple-400 p-2 mb-2">
+                                <p class="text-xs text-purple-800">
+                                    <i class="fas fa-star mr-1"></i>{{ experience.insider_tip }}
+                                </p>
+                            </div>
+                            {% endif %}
+                            <div class="flex justify-between items-center text-sm">
+                                {% if experience.estimated_cost %}
+                                <span class="text-green-600 font-semibold">
+                                    ~{{ trip_request.currency }} {{ experience.estimated_cost }}
+                                </span>
+                                {% endif %}
+                                {% if experience.best_time %}
+                                <span class="text-gray-500">
+                                    <i class="far fa-clock mr-1"></i>{{ experience.best_time }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+
+                <!-- Interactive Map with Leaflet -->
+                <div class="bg-white rounded-xl shadow-lg p-6" x-data="leafletMapComponent()">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-map-marked-alt text-red-600 mr-2"></i>
+                        Activity Map
+                    </h3>
+
+                    <!-- Day Filter Tabs -->
+                    <div class="mb-4">
+                        <div class="flex gap-2 overflow-x-auto pb-2">
+                            <button @click="selectedDay = 'all'; updateMap()"
+                                :class="selectedDay === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                class="px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap hover:shadow transition">
+                                All Days
+                            </button>
+                            <template x-for="day in totalDays" :key="day">
+                                <button @click="selectedDay = day; updateMap()"
+                                    :class="selectedDay === day ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                    class="px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap hover:shadow transition">
+                                    Day <span x-text="day"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Map Options -->
+                    <div class="mb-3 flex items-center justify-between">
+                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                            <input type="checkbox" x-model="showRoutes" @change="updateMap()"
+                                class="rounded text-blue-600 focus:ring-2 focus:ring-blue-500">
+                            <span>Show Routes</span>
+                        </label>
+                        <button @click="centerMap()"
+                            class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            <i class="fas fa-crosshairs"></i> Center Map
+                        </button>
+                    </div>
+
+                    <!-- Map Container -->
+                    <div class="relative rounded-lg overflow-hidden border-2 border-gray-200">
+                        <div id="leaflet-map" class="w-full h-80 bg-gray-100"></div>
+
+                        <!-- Loading Overlay -->
+                        <div x-show="loading"
+                            class="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-2"></i>
+                                <p class="text-gray-600">Loading map...</p>
+                            </div>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div x-show="error" x-cloak
+                            class="absolute inset-0 bg-white flex items-center justify-center p-4 z-10">
+                            <div class="text-center">
+                                <i class="fas fa-exclamation-triangle text-3xl text-red-600 mb-2"></i>
+                                <p class="text-gray-600 text-sm" x-text="error"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map Legend -->
+                    <div class="mt-3 p-3 bg-gray-50 rounded-lg text-xs">
+                        <p class="font-semibold text-gray-700 mb-2">Legend:</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-gray-600">Sightseeing</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                <span class="text-gray-600">Food</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-gray-600">Adventure</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <span class="text-gray-600">Cultural</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity List -->
+                    <div class="mt-4 max-h-40 overflow-y-auto space-y-2">
+                        <p class="text-sm font-semibold text-gray-700 mb-2">
+                            <span x-show="selectedDay === 'all'">All Activities</span>
+                            <span x-show="selectedDay !== 'all'">Day <span x-text="selectedDay"></span>
+                                Activities</span>
+                        </p>
+                        <template x-for="(activity, index) in getFilteredActivities()" :key="activity.id">
+                            <button @click="focusActivity(activity)"
+                                class="w-full text-left p-2 rounded-lg hover:bg-blue-50 transition border border-gray-200">
+                                <div class="flex items-start gap-2">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                                        :style="'background-color: ' + getMarkerColor(activity.activity_type)">
+                                        <span x-text="index + 1"></span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-800 truncate" x-text="activity.name">
+                                        </p>
+                                        <p class="text-xs text-gray-500" x-text="activity.time"></p>
+                                    </div>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Weather Forecast Section with Manual Refresh -->
+                {% if itinerary.weather_data.days %}
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-cloud-sun text-blue-600 mr-2"></i>
+                            Weather Forecast
+                        </h3>
+                        <button id="refreshWeatherBtn"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm"
+                            onclick="refreshWeather()">
+                            <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <!-- Last updated timestamp -->
+                    {% if itinerary.weather_last_updated %}
+                    <p class="text-xs text-gray-500 mb-3">
+                        Last updated: <span id="lastUpdated">{{ itinerary.weather_last_updated|date:"M d, Y g:i A"}}</span>
+                    </p>
+                    {% endif %}
+
+                    <!-- Weather data container -->
+                    <div id="weatherContainer" class="space-y-3">
+                        {% for day in itinerary.weather_data.days|slice:":5" %}
+                        <div
+                            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ day.date }}</p>
+                                <p class="text-sm text-gray-600">{{ day.description|title }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold text-gray-800">{{ day.temp_avg }}°C</p>
+                                <p class="text-xs text-gray-500">{{ day.temp_min }}° - {{ day.temp_max }}°</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="weatherLoading" class="hidden text-center py-4">
+                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
+                        <p class="text-gray-600 mt-2">Fetching latest weather data...</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-cloud-sun text-blue-600 mr-2"></i>
+                            Weather Forecast
+                        </h3>
+                        <button id="refreshWeatherBtn"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm"
+                            onclick="refreshWeather()">
+                            <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                            Fetch Weather
+                        </button>
+                    </div>
+                    <div id="weatherContainer">
+                        <p class="text-gray-500">Weather data not available. Click "Fetch Weather" to load.</p>
+                    </div>
+                    <div id="weatherLoading" class="hidden text-center py-4">
+                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
+                        <p class="text-gray-600 mt-2">Fetching weather data...</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Budget Breakdown -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-pie text-green-600 mr-2"></i>
+                        Budget Breakdown
+                    </h3>
+                    <div class="space-y-3">
+                        {% for category, amount in itinerary.cost_breakdown.items %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 capitalize">{{ category }}</span>
+                            <span class="font-bold text-gray-800">{{ trip_request.currency }}
+                                {{amount|floatformat:2}}</span>
+                        </div>
+                        {% endfor %}
+                        <div class="pt-3 border-t-2 border-gray-300 flex justify-between items-center">
+                            <span class="font-bold text-gray-800">Total</span>
+                            <span class="font-bold text-xl text-green-600">{{ trip_request.currency }}
+                                {{itinerary.total_cost }}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Daily Average</span>
+                            <span class="font-semibold text-gray-800">
+                                {{ trip_request.currency }} {% widthratio itinerary.total_cost trip_request.duration 1%}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Chat Refinement -->
+                <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl shadow-lg p-6"
+                    x-data="chatRefinement()">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-comments text-purple-600 mr-2"></i>
+                        Refine with AI
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Not satisfied with something? Ask our AI to make changes!
+                    </p>
+                    <form @submit.prevent="submitRefinement" class="space-y-3">
+                        <textarea x-model="message" rows="3"
+                            placeholder="e.g., 'Make day 2 more adventurous' or 'Add more food experiences'"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            :disabled="loading"></textarea>
+
+                        <button type="submit" :disabled="loading || !message.trim()"
+                            class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span x-show="!loading">
+                                <i class="fas fa-magic mr-2"></i>Refine Itinerary
+                            </span>
+                            <span x-show="loading">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Processing...
+                            </span>
+                        </button>
+                    </form>
+
+                    <!-- Response message -->
+                    <div x-show="responseMessage" x-cloak class="mt-4 p-4 rounded-lg"
+                        :class="responseType === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'">
+                        <p x-text="responseMessage"></p>
+                    </div>
+                </div>
+
+                <!-- Rating Section -->
+                <div class="bg-white rounded-xl shadow-lg p-6" x-data="ratingComponent()">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i>
+                        Rate This Itinerary
+                    </h3>
+
+                    <!-- Loading State -->
+                    <div x-show="loading" class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
+                        <p class="text-gray-600 mt-2">Loading ratings...</p>
+                    </div>
+
+                    <!-- Rating Display -->
+                    <div x-show="!loading" x-cloak>
+                        <!-- Average Rating Display (if multiple ratings exist) -->
+                        <div x-show="totalRatings > 1"
+                            class="mb-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-3xl font-bold text-gray-800" x-text="averageRating"></span>
+                                        <div class="flex">
+                                            <template x-for="i in 5" :key="i">
+                                                <i class="fas fa-star text-lg"
+                                                    :class="i <= Math.round(averageRating) ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        Based on <span x-text="totalRatings"></span> rating<span
+                                            x-show="totalRatings !== 1">s</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Rating Breakdown -->
+                            <div class="space-y-1 mt-3">
+                                <template x-for="star in [5, 4, 3, 2, 1]" :key="star">
+                                    <div class="flex items-center gap-2 text-sm">
+                                        <span class="w-12 text-gray-600" x-text="star + ' ⭐'"></span>
+                                        <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full bg-yellow-400 transition-all duration-300"
+                                                :style="`width: ${ratingBreakdown[star] ? (ratingBreakdown[star] / totalRatings * 100) : 0}%`">
+                                            </div>
+                                        </div>
+                                        <span class="w-8 text-gray-500 text-right"
+                                            x-text="ratingBreakdown[star] || 0"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- User Rating Form -->
+                        <div class="border-t pt-4" :class="totalRatings > 1 ? 'mt-4' : ''">
+                            <p class="text-sm text-gray-600 mb-3">
+                                <span x-show="userRating === null">Rate your experience:</span>
+                                <span x-show="userRating !== null">Your rating:</span>
+                            </p>
+
+                            <!-- Star Rating Input -->
+                            <div class="mb-4">
+                                <div class="flex gap-2 justify-center mb-3">
+                                    <template x-for="i in 5" :key="i">
+                                        <button type="button" @click="selectRating(i)" @mouseenter="hoverRating = i"
+                                            @mouseleave="hoverRating = 0" :disabled="submitting"
+                                            class="text-3xl focus:outline-none transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <i class="fa-star"
+                                                :class="(hoverRating > 0 ? i <= hoverRating : i <= selectedRating) ? 'fas text-yellow-400' : 'far text-gray-300'"></i>
+                                        </button>
+                                    </template>
+                                </div>
+                                <p class="text-center text-sm text-gray-500" x-show="selectedRating > 0">
+                                    <span x-show="selectedRating === 1">😞 Poor</span>
+                                    <span x-show="selectedRating === 2">😐 Fair</span>
+                                    <span x-show="selectedRating === 3">🙂 Good</span>
+                                    <span x-show="selectedRating === 4">😊 Very Good</span>
+                                    <span x-show="selectedRating === 5">🤩 Excellent</span>
+                                </p>
+                            </div>
+
+                            <!-- Comment Input -->
+                            <textarea x-model="comment" rows="3" placeholder="Share your thoughts... (optional)"
+                                :disabled="submitting"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent mb-3 disabled:bg-gray-100"></textarea>
+
+                            <!-- Submit Button -->
+                            <button @click="submitRating()" :disabled="selectedRating === 0 || submitting"
+                                class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-3 rounded-lg font-semibold hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105">
+                                <span x-show="!submitting">
+                                    <i class="fas fa-star mr-2"></i>
+                                    <span x-text="userRating !== null ? 'Update Rating' : 'Submit Rating'"></span>
+                                </span>
+                                <span x-show="submitting">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>Saving...
+                                </span>
+                            </button>
+
+                            <!-- Success/Error Message -->
+                            <div x-show="message" x-cloak
+                                class="mt-3 p-3 rounded-lg text-sm font-medium transition-all duration-300"
+                                :class="messageType === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'">
+                                <i class="fas mr-2"
+                                    :class="messageType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+                                <span x-text="message"></span>
+                            </div>
+
+                            <!-- User's Previous Comment (if exists) -->
+                            <div x-show="userRating !== null && userComment && !message" x-cloak
+                                class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <p class="text-sm text-blue-800">
+                                    <i class="fas fa-comment mr-2"></i>
+                                    <strong>Your previous comment:</strong><br>
+                                    <span x-text="userComment" class="mt-1 block"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div x-data="modals()">
+    <!-- Share Modal -->
+    <div x-show="showShare" @toggle-share-itinerary.window="showShare = true" x-cloak
+        class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" @click="showShare = false"></div>
+            <div class="relative bg-white rounded-lg max-w-md w-full p-6">
+                <h3 class="text-xl font-bold mb-4">Share Your Itinerary</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Share Link</label>
+                        <div class="flex gap-2">
+                            <input type="text" readonly value="{{ request.build_absolute_uri }}" id="share-link"
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                            <button @click="copyToClipboard()"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fab fa-facebook mr-2"></i>Facebook
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500">
+                            <i class="fab fa-twitter mr-2"></i>Twitter
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+                        </button>
+                    </div>
+                </div>
+                <button @click="showShare = false"
+                    class="mt-4 w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Leaflet Routing Machine JS (for routes) -->
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const alertBox = document.getElementById("info-alert");
+        const closeBtn = document.getElementById("close-alert");
+
+        closeBtn.addEventListener("click", function () {
+            alertBox.style.display = "none";
+        });
+
+        setTimeout(function () {
+            if (alertBox) {
+                alertBox.style.display = "none";
+            }
+        }, 7000);
+
+    });
+
+    function modals() {
+        return {
+            showShare: false,
+            showRegenerate: false,
+            dayToRegenerate: 1,
+
+            copyToClipboard() {
+                const input = document.getElementById('share-link');
+                input.select();
+                document.execCommand('copy');
+                alert('Link copied to clipboard!');
+            }
+        }
+    }
+
+    function refreshWeather() {
+    const btn = document.getElementById('refreshWeatherBtn');
+    const icon = document.getElementById('refreshIcon');
+    const container = document.getElementById('weatherContainer');
+    const loading = document.getElementById('weatherLoading');
+    
+    // Disable button and show loading
+    btn.disabled = true;
+    icon.classList.add('fa-spin');
+    container.classList.add('hidden');
+    loading.classList.remove('hidden');
+    
+    // Make AJAX request to refresh weather
+    fetch('{% url "trips:refresh_weather" itinerary.id %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Update weather container with new HTML
+            container.innerHTML = data.weather_html;
+            
+            // Update last updated timestamp if available
+            if (data.last_updated) {
+                const lastUpdatedEl = document.getElementById('lastUpdated');
+                if (lastUpdatedEl) {
+                    const date = new Date(data.last_updated);
+                    lastUpdatedEl.textContent = date.toLocaleString();
+                }
+            }
+            
+            // Show success message
+            showNotification('Weather data refreshed successfully!', 'success');
+        } else {
+            // Show error message
+            showNotification(data.message || 'Failed to refresh weather data', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Weather refresh error:', error);
+        showNotification('Error refreshing weather data', 'error');
+    })
+    .finally(() => {
+        // Re-enable button and stop loading
+        btn.disabled = false;
+        icon.classList.remove('fa-spin');
+        container.classList.remove('hidden');
+        loading.classList.add('hidden');
+    });
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white`;
+    notification.innerHTML = `
+        <div class="flex items-center gap-2">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+    function chatRefinement() {
+        return {
+            message: '',
+            loading: false,
+            responseMessage: '',
+            responseType: 'success',
+
+            async submitRefinement() {
+                if (!this.message.trim()) return;
+
+                this.loading = true;
+                this.responseMessage = '';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('message', this.message);
+                    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                    const response = await fetch('{% url "trips:chat_refine" itinerary.id %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        this.responseType = 'success';
+                        this.responseMessage = data.message;
+
+                        // If new version created, redirect after showing message
+                        if (data.new_version && data.redirect_url) {
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url;
+                            }, 2000);
+                        } else {
+                            // Clear message after 5 seconds if no redirect
+                            setTimeout(() => {
+                                this.responseMessage = '';
+                                this.message = '';
+                            }, 5000);
+                        }
+                    } else {
+                        this.responseType = 'error';
+                        this.responseMessage = data.message || 'Failed to process request';
+                    }
+                } catch (error) {
+                    this.responseType = 'error';
+                    this.responseMessage = 'An error occurred. Please try again.';
+                } finally {
+                    this.loading = false;
+                }
+            }
+        }
+    }
+
+    function ratingComponent() {
+        return {
+            // State
+            loading: true,
+            submitting: false,
+            selectedRating: 0,
+            hoverRating: 0,
+            comment: '',
+            message: '',
+            messageType: 'success',
+
+            // Data from backend
+            userRating: null,
+            userComment: '',
+            averageRating: 0,
+            totalRatings: 0,
+            ratingBreakdown: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+
+            // Initialize
+            async init() {
+                await this.fetchRatingData();
+            },
+
+            // Fetch current rating data
+            async fetchRatingData() {
+                this.loading = true;
+                try {
+                    const response = await fetch('{% url "trips:get_rating" itinerary.id %}', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        this.userRating = data.user_rating;
+                        this.userComment = data.user_comment;
+                        this.selectedRating = data.user_rating || 0;
+                        this.comment = data.user_comment || '';
+                        this.averageRating = data.average_rating;
+                        this.totalRatings = data.total_ratings;
+                        this.ratingBreakdown = data.rating_breakdown;
+                    }
+                } catch (error) {
+                    console.error('Error fetching rating data:', error);
+                    this.showMessage('Failed to load ratings', 'error');
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            // Select rating
+            selectRating(rating) {
+                if (this.submitting) return;
+                this.selectedRating = rating;
+                this.message = ''; // Clear any previous messages
+            },
+
+            // Submit rating
+            async submitRating() {
+                if (this.selectedRating === 0 || this.submitting) return;
+
+                this.submitting = true;
+                this.message = '';
+
+                try {
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                    const response = await fetch('{% url "trips:rate_itinerary" itinerary.id %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            rating: this.selectedRating,
+                            comment: this.comment.trim()
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        this.showMessage(data.message, 'success');
+
+                        // Update local state
+                        this.userRating = data.rating;
+                        this.userComment = this.comment;
+                        this.averageRating = data.average_rating;
+                        this.totalRatings = data.total_ratings;
+
+                        // Refresh full rating data after 1 second
+                        setTimeout(() => {
+                            this.fetchRatingData();
+                        }, 1000);
+                    } else {
+                        this.showMessage(data.message || 'Failed to submit rating', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error submitting rating:', error);
+                    this.showMessage('An error occurred. Please try again.', 'error');
+                } finally {
+                    this.submitting = false;
+                }
+            },
+
+            showMessage(msg, type) {
+                this.message = msg;
+                this.messageType = type;
+
+                if (type === 'success') {
+                    setTimeout(() => {
+                        this.message = '';
+                    }, 5000);
+                }
+            }
+        }
+    }
+
+    function leafletMapComponent() {
+        return {
+            map: null,
+            markers: [],
+            routingControl: null,
+            loading: true,
+            error: null,
+            selectedDay: 'all',
+            showRoutes: true,
+            totalDays: 0,
+            activities: [],
+            markerGroup: null,
+
+            async init() {
+                await this.fetchMapData();
+            },
+
+            async fetchMapData() {
+                this.loading = true;
+                this.error = null;
+
+                try {
+                    const response = await fetch('{% url "trips:get_map_data" itinerary.id %}');
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        this.activities = data.activities;
+                        this.totalDays = data.total_days;
+
+                        if (this.activities.length === 0) {
+                            this.error = 'No activities with location data available';
+                            this.loading = false;
+                            return;
+                        }
+
+                        if (typeof L === 'undefined') {
+                            this.error = 'Leaflet library not loaded';
+                            this.loading = false;
+                            return;
+                        }
+
+                        this.initMap();
+                    } else {
+                        this.error = data.message || 'Failed to load map data';
+                        this.loading = false;
+                    }
+                } catch (error) {
+                    console.error('Error fetching map data:', error);
+                    this.error = 'Failed to load map data';
+                    this.loading = false;
+                }
+            },
+
+            initMap() {
+                const mapElement = document.getElementById('leaflet-map');
+
+                if (!mapElement) {
+                    this.error = 'Map container not found';
+                    this.loading = false;
+                    return;
+                }
+
+                const firstActivity = this.activities.find(a => a.lat && a.lng);
+                if (!firstActivity) {
+                    this.error = 'No activities with valid coordinates';
+                    this.loading = false;
+                    return;
+                }
+
+                // Initialize map
+                this.map = L.map('leaflet-map').setView([firstActivity.lat, firstActivity.lng], 13);
+
+                // Add OpenStreetMap tiles (FREE!)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(this.map);
+
+                // Create marker group
+                this.markerGroup = L.layerGroup().addTo(this.map);
+
+                // Add markers
+                this.addMarkers();
+                this.fitBounds();
+                this.loading = false;
+            },
+
+            addMarkers() {
+                // Clear existing markers
+                if (this.markerGroup) {
+                    this.markerGroup.clearLayers();
+                }
+                this.markers = [];
+
+                // Remove existing routing
+                if (this.routingControl) {
+                    this.map.removeControl(this.routingControl);
+                    this.routingControl = null;
+                }
+
+                const filteredActivities = this.getFilteredActivities();
+
+                filteredActivities.forEach((activity, index) => {
+                    if (!activity.lat || !activity.lng) return;
+
+                    const color = this.getMarkerColor(activity.activity_type);
+
+                    // Create custom icon
+                    const customIcon = L.divIcon({
+                        className: 'custom-marker',
+                        html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${index + 1}</div>`,
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+
+                    // Create marker
+                    const marker = L.marker([activity.lat, activity.lng], { icon: customIcon })
+                        .bindPopup(this.createPopupContent(activity), {
+                            maxWidth: 300,
+                            className: 'custom-popup'
+                        });
+
+                    marker.activity = activity;
+                    this.markers.push(marker);
+                    this.markerGroup.addLayer(marker);
+                });
+
+                // Draw routes if enabled
+                if (this.showRoutes && filteredActivities.length > 1) {
+                    this.drawRoute(filteredActivities);
+                }
+            },
+
+            drawRoute(activities) {
+                const validActivities = activities.filter(a => a.lat && a.lng);
+
+                if (validActivities.length < 2) return;
+
+                // Create waypoints
+                const waypoints = validActivities.map(activity =>
+                    L.latLng(activity.lat, activity.lng)
+                );
+
+                // Create routing control
+                this.routingControl = L.Routing.control({
+                    waypoints: waypoints,
+                    routeWhileDragging: false,
+                    addWaypoints: false,
+                    draggableWaypoints: false,
+                    fitSelectedRoutes: false,
+                    showAlternatives: false,
+                    lineOptions: {
+                        styles: [{
+                            color: '#3B82F6',
+                            opacity: 0.7,
+                            weight: 4
+                        }]
+                    },
+                    createMarker: function () { return null; }, // Don't create default markers
+                    show: false // Hide directions panel
+                }).addTo(this.map);
+
+                // Hide the routing instructions panel
+                const routingContainer = this.routingControl.getContainer();
+                if (routingContainer) {
+                    routingContainer.style.display = 'none';
+                }
+            },
+
+            getFilteredActivities() {
+                if (this.selectedDay === 'all') {
+                    return this.activities;
+                }
+                return this.activities.filter(a => a.day === this.selectedDay);
+            },
+
+            updateMap() {
+                if (!this.map) return;
+                this.addMarkers();
+                this.fitBounds();
+            },
+
+            fitBounds() {
+                if (this.markers.length === 0) return;
+
+                const bounds = L.latLngBounds(this.markers.map(m => m.getLatLng()));
+                this.map.fitBounds(bounds, { padding: [20, 20] });
+
+                if (this.markers.length === 1) {
+                    this.map.setZoom(15);
+                }
+            },
+
+            centerMap() {
+                this.fitBounds();
+            },
+
+            focusActivity(activity) {
+                if (!activity.lat || !activity.lng) return;
+
+                const marker = this.markers.find(m =>
+                    m.activity && m.activity.id === activity.id
+                );
+
+                if (marker) {
+                    this.map.setView([activity.lat, activity.lng], 16);
+                    marker.openPopup();
+
+                    // Bounce effect (simple animation)
+                    const icon = marker.getElement();
+                    if (icon) {
+                        icon.style.transition = 'transform 0.3s';
+                        icon.style.transform = 'scale(1.3)';
+                        setTimeout(() => {
+                            icon.style.transform = 'scale(1)';
+                        }, 300);
+                    }
+                }
+            },
+
+            getMarkerColor(activityType) {
+                const colors = {
+                    'sightseeing': '#EF4444',
+                    'food': '#F97316',
+                    'adventure': '#10B981',
+                    'cultural': '#3B82F6',
+                    'relaxation': '#8B5CF6',
+                    'entertainment': '#EC4899',
+                    'shopping': '#F59E0B',
+                    'transport': '#6B7280'
+                };
+                return colors[activityType] || '#6B7280';
+            },
+
+            createPopupContent(activity) {
+                return `
+                    <div style="font-family: system-ui, -apple-system, sans-serif;">
+                        <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0; color: #1F2937;">
+                            ${activity.name}
+                        </h3>
+                        <div style="font-size: 13px; color: #6B7280; margin-bottom: 8px;">
+                            <div style="margin-bottom: 4px;">
+                                <i class="fas fa-clock" style="margin-right: 4px;"></i>
+                                Day ${activity.day} - ${activity.time}
+                            </div>
+                            <div style="margin-bottom: 4px;">
+                                <i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>
+                                ${activity.location}
+                            </div>
+                            ${activity.address ? `<div style="margin-bottom: 4px; font-size: 12px; color: #9CA3AF;">${activity.address}</div>` : ''}
+                            <div style="margin-bottom: 4px;">
+                                <i class="fas fa-dollar-sign" style="margin-right: 4px;"></i>
+                                ${activity.cost}
+                            </div>
+                        </div>
+                        <p style="font-size: 13px; color: #4B5563; margin: 8px 0; line-height: 1.5;">
+                            ${activity.description}
+                        </p>
+                        <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #E5E7EB;">
+                            <a href="https://www.openstreetmap.org/directions?from=&to=${activity.lat},${activity.lng}" 
+                               target="_blank"
+                               style="color: #3B82F6; text-decoration: none; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center;">
+                                <i class="fas fa-directions" style="margin-right: 6px;"></i>
+                                Get Directions
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+    }
+
+</script>
+
+<style>
+    #info-alert {
+        transition: opacity 1s ease;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Star animation on hover */
+    .fa-star {
+        transition: all 0.2s ease;
+    }
+
+    button:hover .fa-star {
+        transform: rotate(72deg);
+    }
+
+    /* Map marker animations */
+    @keyframes marker-bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Scrollbar styling for activity list */
+    .max-h-48::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .max-h-48::-webkit-scrollbar-track {
+        background: #F3F4F6;
+        border-radius: 3px;
+    }
+
+    .max-h-48::-webkit-scrollbar-thumb {
+        background: #D1D5DB;
+        border-radius: 3px;
+    }
+
+    .max-h-48::-webkit-scrollbar-thumb:hover {
+        background: #9CA3AF;
+    }
+
+    /* Leaflet custom styles */
+    .leaflet-popup-content-wrapper {
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .leaflet-popup-tip-container {
+        display: none;
+    }
+
+    .custom-marker {
+        background: transparent !important;
+        border: none !important;
+    }
+</style>
+{% endblock %}

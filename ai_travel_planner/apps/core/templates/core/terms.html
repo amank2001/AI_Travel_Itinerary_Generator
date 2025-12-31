@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <header class="mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">
+        {{ company_name }}
+      </p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+        Terms of Service
+      </h1>
+      <p class="mt-2 text-xs text-slate-400">
+        Last updated {{ last_updated }}
+      </p>
+    </header>
+
+    <!-- Intro -->
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-sm text-slate-300 leading-relaxed">
+      <p>
+        These Terms of Service (“Terms”) govern your use of {{ company_name }} (the “Service”),
+        including its AI-powered itinerary planning tools, website, and APIs.
+        By accessing or using the Service, you agree to be bound by these Terms.
+      </p>
+    </section>
+
+    <!-- Table of Contents -->
+    <section class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <h2 class="text-sm font-semibold text-indigo-300">Contents</h2>
+      <ul class="mt-3 grid grid-cols-1 gap-1 text-xs text-slate-300 sm:grid-cols-2">
+        <li>1. Service Description</li>
+        <li>2. Eligibility</li>
+        <li>3. User Responsibilities</li>
+        <li>4. AI-Generated Content</li>
+        <li>5. External Services</li>
+        <li>6. Intellectual Property</li>
+        <li>7. Privacy</li>
+        <li>8. Disclaimers</li>
+        <li>9. Limitation of Liability</li>
+        <li>10. Modifications</li>
+        <li>11. Termination</li>
+        <li>12. Governing Law</li>
+        <li>13. Contact</li>
+      </ul>
+    </section>
+
+    <!-- Terms Sections -->
+    <section class="mt-8 space-y-6 text-sm text-slate-300 leading-relaxed">
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">1. Service Description</h3>
+        <p>
+          {{ company_name }} provides AI-powered travel itinerary recommendations using large
+          language models, real-time data integrations, and third-party APIs. The Service is
+          intended solely for travel planning assistance and educational or informational purposes.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">2. Eligibility</h3>
+        <p>
+          You must be at least 18 years old to use this Service. By accessing the Service,
+          you represent that you meet this eligibility requirement.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">3. User Responsibilities</h3>
+        <ul class="ml-5 list-disc space-y-1">
+          <li>Provide accurate and lawful input data.</li>
+          <li>Refrain from using the Service for fraudulent or harmful activities.</li>
+          <li>Verify all travel arrangements independently before booking.</li>
+          <li>Comply with all applicable laws and regulations.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">4. AI-Generated Content</h3>
+        <p>
+          All itineraries and recommendations are generated automatically by an artificial
+          intelligence system. Output may be inaccurate, incomplete, or outdated. 
+          You are responsible for validating all details, including pricing, availability,
+          and travel advisories, with official sources prior to acting on the recommendations.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">5. External Services</h3>
+        <p>
+          We rely on third-party providers for data such as weather forecasts, attraction information,
+          and transportation estimates. We are not responsible for the accuracy or reliability of
+          any external service or API used within the platform.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">6. Intellectual Property</h3>
+        <p>
+          All platform content, design, and source code are owned by {{ company_name }}
+          unless explicitly stated otherwise. Users are granted a limited, non-exclusive,
+          revocable license to access the Service for personal, non-commercial use.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">7. Privacy</h3>
+        <p>
+          We only process user inputs necessary to generate itineraries.
+          Sensitive information such as payment details is never collected.
+          Personal data is handled in accordance with our Privacy Policy.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">8. Disclaimers</h3>
+        <p>
+          The Service is provided “as is” without warranties of any kind.
+          We make no guarantees regarding accuracy, availability, fitness
+          for a particular purpose, or uninterrupted service operation.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">9. Limitation of Liability</h3>
+        <p>
+          {{ company_name }} shall not be liable for any direct, indirect,
+          incidental, or consequential damages resulting from reliance on
+          AI-generated outputs or from the use of any third-party services.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">10. Modifications</h3>
+        <p>
+          We reserve the right to modify or update these Terms at any time.
+          Continued use of the Service following changes constitutes acceptance
+          of the revised Terms.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">11. Termination</h3>
+        <p>
+          We may suspend or terminate access to the Service without notice
+          if a user violates these Terms or misuses the platform.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">12. Governing Law</h3>
+        <p>
+          These Terms shall be governed and construed in accordance with
+          applicable laws of the jurisdiction in which {{ company_name }} operates,
+          without regard to conflict-of-law principles.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">13. Contact</h3>
+        <p>
+          For any questions related to these Terms, please contact:
+        </p>
+        <p class="mt-1">
+          <a href="mailto:{{ support_email }}" class="font-medium text-indigo-400 hover:text-indigo-300">
+            {{ support_email }}
+          </a>
+        </p>
+      </article>
+
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="mt-10 border-t border-slate-800 pt-6 text-xs text-slate-400">
+      <p>
+        By using this website and the AI Travel Planner service,
+        you acknowledge that you have read, understood, and agreed to these Terms.
+      </p>
+    </section>
+  </div>
+</div>
+{% endblock %}

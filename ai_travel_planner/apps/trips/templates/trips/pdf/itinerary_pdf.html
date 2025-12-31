@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            font-size: 12pt;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+            color: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 32pt;
+        }
+        
+        .header p {
+            margin: 5px 0;
+            font-size: 14pt;
+        }
+        
+        .trip-overview {
+            background: #f3f4f6;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            page-break-inside: avoid;
+        }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .overview-item {
+            margin-bottom: 10px;
+        }
+        
+        .overview-label {
+            font-weight: bold;
+            color: #4b5563;
+            font-size: 10pt;
+        }
+        
+        .overview-value {
+            font-size: 14pt;
+            color: #1f2937;
+        }
+        
+        .day-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        
+        .day-header {
+            background: #3b82f6;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .day-header h2 {
+            margin: 0;
+            font-size: 20pt;
+        }
+        
+        .activity {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            background: #f9fafb;
+            page-break-inside: avoid;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .activity-time {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 11pt;
+        }
+        
+        .activity-title {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 5px 0;
+        }
+        
+        .activity-location {
+            color: #6b7280;
+            font-size: 11pt;
+            margin-bottom: 10px;
+        }
+        
+        .activity-description {
+            margin: 10px 0;
+            color: #4b5563;
+        }
+        
+        .activity-cost {
+            color: #059669;
+            font-weight: bold;
+            font-size: 13pt;
+            margin-top: 10px;
+        }
+        
+        .activity-tip {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 10pt;
+        }
+        
+        .local-experiences {
+            margin-top: 40px;
+            page-break-before: always;
+        }
+        
+        .section-title {
+            background: #9333ea;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 20pt;
+        }
+        
+        .experience {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            page-break-inside: avoid;
+        }
+        
+        .experience-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        
+        .experience-category {
+            background: #f3e8ff;
+            color: #7e22ce;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9pt;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .experience-description {
+            color: #4b5563;
+            margin: 10px 0;
+        }
+        
+        .experience-tip {
+            background: #fef3c7;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 10pt;
+            margin-top: 10px;
+        }
+        
+        .budget-section {
+            margin-top: 40px;
+            page-break-inside: avoid;
+        }
+        
+        .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .budget-table th,
+        .budget-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .budget-table th {
+            background: #f3f4f6;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .budget-total {
+            background: #d1fae5;
+            font-weight: bold;
+            font-size: 14pt;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 10pt;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .weather-section {
+            background: #dbeafe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .weather-day {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>{{ itinerary.title }}</h1>
+        <p>{{ itinerary.description }}</p>
+        <p style="font-size: 12pt; margin-top: 15px;">Generated by AI Travel Planner</p>
+    </div>
+    
+    <!-- Trip Overview -->
+    <div class="trip-overview">
+        <h2 style="margin-top: 0; color: #1f2937;">Trip Overview</h2>
+        <div class="overview-grid">
+            <div class="overview-item">
+                <div class="overview-label">📍 Destination</div>
+                <div class="overview-value">{{ trip_request.destination }}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">📅 Start Date</div>
+                <div class="overview-value">{{ trip_request.start_date|date:"F d, Y" }}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">⏱️ Duration</div>
+                <div class="overview-value">{{ trip_request.duration }} days</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">💰 Budget</div>
+                <div class="overview-value">{{ trip_request.currency }} {{ trip_request.budget }}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">🎒 Travel Style</div>
+                <div class="overview-value">{{ trip_request.get_travel_style_display }}</div>
+            </div>
+            <div class="overview-item">
+                <div class="overview-label">👥 Group Size</div>
+                <div class="overview-value">{{ trip_request.get_group_size_display }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Weather Forecast -->
+    {% if itinerary.weather_data.days %}
+    <div class="weather-section">
+        <h3 style="margin-top: 0; color: #1e40af;">☀️ Weather Forecast</h3>
+        <div class="weather-grid">
+            {% for day in itinerary.weather_data.days|slice:":6" %}
+            <div class="weather-day">
+                <div style="font-weight: bold; font-size: 10pt;">{{ day.date }}</div>
+                <div style="color: #6b7280; font-size: 9pt;">{{ day.description|title }}</div>
+                <div style="font-size: 14pt; font-weight: bold; color: #1e40af;">{{ day.temp_avg }}°C</div>
+                <div style="font-size: 9pt; color: #9ca3af;">{{ day.temp_min }}° - {{ day.temp_max }}°</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Day by Day Itinerary -->
+    <h2 style="margin-top: 40px; color: #1f2937; font-size: 24pt;">📋 Daily Itinerary</h2>
+    
+    {% for day, activities in activities_by_day.items %}
+    <div class="day-section">
+        <div class="day-header">
+            <h2>Day {{ day }}</h2>
+        </div>
+        
+        {% for activity in activities %}
+        <div class="activity">
+            <div class="activity-header">
+                <div>
+                    <div class="activity-time">{{ activity.start_time|time:"g:i A" }} ({{ activity.duration_minutes }} min)</div>
+                </div>
+                <div class="activity-cost">{{ activity.currency }} {{ activity.estimated_cost }}</div>
+            </div>
+            
+            <div class="activity-title">{{ activity.name }}</div>
+            <div class="activity-location">📍 {{ activity.location_name }}</div>
+            
+            <div class="activity-description">{{ activity.description }}</div>
+            
+            {% if activity.tips %}
+            <div class="activity-tip">
+                <strong>💡 Tip:</strong> {{ activity.tips }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    
+    <!-- Local Experiences -->
+    {% if local_experiences %}
+    <div class="local-experiences">
+        <div class="section-title">
+            <h2 style="margin: 0;">✨ Local Experiences & Hidden Gems</h2>
+        </div>
+        
+        {% for experience in local_experiences %}
+        <div class="experience">
+            <div class="experience-title">{{ experience.name }}</div>
+            <span class="experience-category">{{ experience.get_category_display }}</span>
+            
+            <div class="experience-description">{{ experience.description }}</div>
+            
+            {% if experience.estimated_cost %}
+            <div style="color: #059669; font-weight: bold; margin-top: 10px;">
+                Cost: ~{{ trip_request.currency }} {{ experience.estimated_cost }}
+            </div>
+            {% endif %}
+            
+            {% if experience.best_time %}
+            <div style="color: #6b7280; font-size: 10pt; margin-top: 5px;">
+                ⏰ Best time: {{ experience.best_time }}
+            </div>
+            {% endif %}
+            
+            {% if experience.insider_tip %}
+            <div class="experience-tip">
+                <strong>⭐ Insider Tip:</strong> {{ experience.insider_tip }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Budget Breakdown -->
+    <div class="budget-section">
+        <div class="section-title">
+            <h2 style="margin: 0;">💵 Budget Breakdown</h2>
+        </div>
+        
+        <table class="budget-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category, amount in itinerary.cost_breakdown.items %}
+                <tr>
+                    <td style="text-transform: capitalize;">{{ category }}</td>
+                    <td style="text-align: right;">{{ trip_request.currency }} {{ amount|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="budget-total">
+                    <td><strong>Total Estimated Cost</strong></td>
+                    <td style="text-align: right;"><strong>{{ trip_request.currency }} {{ itinerary.total_cost }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="margin-top: 15px; padding: 15px; background: #fef3c7; border-radius: 8px; font-size: 10pt;">
+            <strong>💡 Budget Tip:</strong> Prices are estimates and may vary. Always carry extra money for unexpected expenses and tips.
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>Generated by AI Travel Planner</strong></p>
+        <p>Created for: {{ trip_request.user.get_full_name|default:trip_request.user.username }}</p>
+        <p>Generated on: {% now "F d, Y" %}</p>
+        <p style="margin-top: 20px;">Have an amazing trip! 🌍✈️</p>
+        <p>© 2026 AI Travel Planner. All rights reserved.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <header class="mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">
+        {{ company_name }}
+      </p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+        Privacy Policy
+      </h1>
+      <p class="mt-2 text-xs text-slate-400">
+        Last updated {{ last_updated }}
+      </p>
+    </header>
+
+    <!-- Intro -->
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-sm text-slate-300 leading-relaxed">
+      <p>
+        This Privacy Policy explains how {{ company_name }} (“we”, “our”, or “us”)
+        collects, uses, and protects information when you use our AI-powered
+        travel planning service (“Service”). By using the Service, you consent
+        to the practices described below.
+      </p>
+    </section>
+
+    <!-- Key principles -->
+    <section class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <h2 class="text-sm font-semibold text-indigo-300">Our Privacy Principles</h2>
+      <ul class="mt-3 ml-5 list-disc space-y-1 text-xs text-slate-300">
+        <li>Data minimization – we collect only what we need.</li>
+        <li>Transparency – we are clear about data usage.</li>
+        <li>Security – industry-standard protections.</li>
+        <li>User control – you decide what data you provide.</li>
+      </ul>
+    </section>
+
+    <!-- Policy sections -->
+    <section class="mt-8 space-y-6 text-sm text-slate-300 leading-relaxed">
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">1. Information We Collect</h3>
+        <ul class="ml-5 list-disc space-y-1">
+          <li>Trip planning inputs (destination, budget, dates, preferences).</li>
+          <li>Basic device and usage analytics for site safety and optimization.</li>
+          <li>Optional contact details if you reach out to support.</li>
+        </ul>
+        <p class="mt-2">
+          We do <strong>not</strong> collect payment details, identity documents,
+          or location tracking data beyond what users manually submit.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">2. How We Use Information</h3>
+        <ul class="ml-5 list-disc space-y-1">
+          <li>To generate customized AI itineraries.</li>
+          <li>To provide customer support.</li>
+          <li>To improve the accuracy and performance of the Service.</li>
+          <li>To monitor misuse or security risks.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">3. AI Processing</h3>
+        <p>
+          User inputs are transmitted to Large Language Model (LLM) providers
+          via LangChain solely to generate itinerary responses. Data may be
+          temporarily processed by third-party AI systems but is not used for
+          advertising profiling or unrelated analytics.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">4. Data Storage & Retention</h3>
+        <p>
+          We store only the minimum data required to operate the Service.
+          Most trip input data is processed transiently and discarded once
+          generation is complete unless sessions or user accounts are enabled.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">5. Third-Party Services</h3>
+        <p>
+          The Service integrates weather, travel, and mapping APIs. These
+          providers may receive limited requests necessary to return data.
+          They operate under their own privacy and security policies.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">6. Cookies & Analytics</h3>
+        <p>
+          Basic cookies may be used to maintain session security and site
+          functionality. No targeted advertising cookies are used.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">7. Data Security</h3>
+        <p>
+          We employ encryption, secured API access, rate limiting, and server-side
+          access controls to protect your data. However, no online platform can
+          guarantee complete security.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">8. Your Rights</h3>
+        <ul class="ml-5 list-disc space-y-1">
+          <li>Request access to personal data we hold.</li>
+          <li>Request correction or deletion of your data.</li>
+          <li>Withdraw consent for data processing.</li>
+        </ul>
+        <p class="mt-2">
+          To exercise your rights, please contact us using the details below.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">9. Children’s Privacy</h3>
+        <p>
+          The Service is not intended for users under the age of 13.
+          We do not knowingly collect information from children.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">10. Policy Updates</h3>
+        <p>
+          This Privacy Policy may be updated from time to time.
+          Any changes will appear on this page with a revised
+          “Last updated” date.
+        </p>
+      </article>
+
+      <article>
+        <h3 class="text-indigo-300 font-semibold">11. Contact</h3>
+        <p>
+          For privacy-related questions or data requests, contact:
+        </p>
+        <p class="mt-1">
+          <a href="mailto:{{ support_email }}"
+             class="font-medium text-indigo-400 hover:text-indigo-300">
+            {{ support_email }}
+          </a>
+        </p>
+      </article>
+
+    </section>
+
+    <!-- Acknowledgment -->
+    <section class="mt-10 border-t border-slate-800 pt-6 text-xs text-slate-400">
+      <p>
+        By using {{ company_name }}, you acknowledge that you have read
+        and agree to this Privacy Policy.
+      </p>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

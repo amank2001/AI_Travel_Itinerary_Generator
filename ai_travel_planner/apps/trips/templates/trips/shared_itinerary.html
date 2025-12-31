@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ itinerary.title }} - Shared Travel Itinerary</title>
+    
+    <!-- Open Graph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="{{ itinerary.title }} - AI Travel Planner">
+    <meta property="og:description" content="{{ itinerary.description|truncatewords:30 }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/images/share-preview.jpg">
+    <meta property="og:site_name" content="AI Travel Planner">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ itinerary.title }}">
+    <meta name="twitter:description" content="{{ itinerary.description|truncatewords:30 }}">
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}/static/images/share-preview.jpg">
+    
+    <!-- Additional Meta -->
+    <meta name="description" content="Explore this amazing {{ trip_request.duration }}-day trip to {{ trip_request.destination }}. Created with AI Travel Planner.">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        .shared-watermark {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .shared-watermark { background: none; border: none; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-blue-50 to-white min-h-screen">
+    
+    <!-- Header with Branding -->
+    <header class="bg-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-10 h-10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-plane text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">AI Travel Planner</h1>
+                        <p class="text-xs text-gray-500">Shared Itinerary</p>
+                    </div>
+                </div>
+                <a href="/" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition font-semibold">
+                    <i class="fas fa-magic mr-2"></i>Create Your Own
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Shared Notice Banner -->
+    <div class="shared-watermark no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-share-alt text-blue-600 text-lg"></i>
+                <p class="text-sm text-gray-700">
+                    <strong>Shared Itinerary:</strong> Someone shared this amazing travel plan with you! 
+                    <a href="/" class="text-blue-600 hover:text-blue-800 font-semibold underline ml-2">Create your own →</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Itinerary Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-2">{{ itinerary.title }}</h2>
+                    <p class="text-gray-600 text-lg">{{ itinerary.description }}</p>
+                </div>
+                <div class="flex gap-3 no-print">
+                    <button onclick="window.print()" 
+                            class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition">
+                        <i class="fas fa-print mr-2"></i>Print
+                    </button>
+                    <button onclick="copyShareLink()" 
+                            class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
+                        <i class="fas fa-link mr-2"></i>Copy Link
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Trip Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <i class="fas fa-calendar-alt text-blue-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Duration</p>
+                    <p class="text-xl font-bold text-gray-800">{{ trip_request.duration }} Days</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <i class="fas fa-dollar-sign text-green-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Total Cost</p>
+                    <p class="text-xl font-bold text-gray-800">{{ trip_request.currency }} {{ itinerary.total_cost }}</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <i class="fas fa-map-pin text-purple-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Destination</p>
+                    <p class="text-xl font-bold text-gray-800">{{ trip_request.destination }}</p>
+                </div>
+                <div class="bg-orange-50 rounded-lg p-4">
+                    <i class="fas fa-star text-orange-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Travel Style</p>
+                    <p class="text-xl font-bold text-gray-800 capitalize">{{ trip_request.travel_style }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Daily Itinerary -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                {% for day, activities in activities_by_day.items %}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden" x-data="{ expanded: {% if day == 1 %}true{% else %}false{% endif %} }">
+                    <div @click="expanded = !expanded" 
+                         class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 cursor-pointer hover:from-blue-700 hover:to-purple-700 transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-2xl font-bold">Day {{ day }}</h3>
+                                <p class="text-blue-100">{{ activities|length }} activities planned</p>
+                            </div>
+                            <i class="fas fa-chevron-down text-2xl transform transition-transform" 
+                               :class="expanded ? 'rotate-180' : ''"></i>
+                        </div>
+                    </div>
+                    
+                    <div x-show="expanded" x-cloak x-transition class="p-6">
+                        <div class="space-y-4">
+                            {% for activity in activities %}
+                            <div class="flex gap-4 p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition">
+                                <div class="flex-shrink-0 text-center">
+                                    <div class="bg-blue-100 rounded-lg px-3 py-2">
+                                        <p class="text-xs text-gray-600">{{ activity.get_time_slot_display }}</p>
+                                        <p class="font-bold text-blue-600">{{ activity.start_time|time:"g:i A" }}</p>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-500">
+                                        {{ activity.duration_minutes }} min
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-grow">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div>
+                                            <h4 class="text-lg font-bold text-gray-800">{{ activity.name }}</h4>
+                                            <p class="text-sm text-gray-500">
+                                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                                {{ activity.location_name }}
+                                            </p>
+                                        </div>
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                                            {{ activity.get_activity_type_display }}
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="text-gray-600 mb-3">{{ activity.description }}</p>
+                                    
+                                    {% if activity.tips %}
+                                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3">
+                                        <p class="text-sm text-yellow-800">
+                                            <i class="fas fa-lightbulb mr-2"></i>
+                                            <strong>Tip:</strong> {{ activity.tips }}
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-lg font-bold text-green-600">
+                                            <i class="fas fa-dollar-sign mr-1"></i>
+                                            {{ activity.currency }} {{ activity.estimated_cost }}
+                                        </div>
+                                        {% if activity.booking_url %}
+                                        <a href="{{ activity.booking_url }}" target="_blank" rel="noopener noreferrer"
+                                           class="text-sm text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-external-link-alt mr-1"></i>Book Now
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Local Experiences Section -->
+                {% if local_experiences %}
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-gem text-purple-600 mr-3"></i>
+                        Local Experiences & Hidden Gems
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for experience in local_experiences %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-purple-400 hover:shadow-md transition">
+                            <div class="flex items-start justify-between mb-2">
+                                <h4 class="font-bold text-gray-800">{{ experience.name }}</h4>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                                    {{ experience.get_category_display }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">{{ experience.description }}</p>
+                            {% if experience.insider_tip %}
+                            <div class="bg-purple-50 border-l-4 border-purple-400 p-2 mb-2">
+                                <p class="text-xs text-purple-800">
+                                    <i class="fas fa-star mr-1"></i>{{ experience.insider_tip }}
+                                </p>
+                            </div>
+                            {% endif %}
+                            <div class="flex justify-between items-center text-sm">
+                                {% if experience.estimated_cost %}
+                                <span class="text-green-600 font-semibold">
+                                    ~{{ trip_request.currency }} {{ experience.estimated_cost }}
+                                </span>
+                                {% endif %}
+                                {% if experience.best_time %}
+                                <span class="text-gray-500">
+                                    <i class="far fa-clock mr-1"></i>{{ experience.best_time }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Right Column: Summary Info -->
+            <div class="space-y-6">
+                
+                <!-- Weather Forecast -->
+                {% if itinerary.weather_data.days %}
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-cloud-sun text-blue-600 mr-2"></i>
+                        Weather Forecast
+                    </h3>
+                    <div class="space-y-3">
+                        {% for day in itinerary.weather_data.days|slice:":5" %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ day.date }}</p>
+                                <p class="text-sm text-gray-600">{{ day.description|title }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold text-gray-800">{{ day.temp_avg }}°C</p>
+                                <p class="text-xs text-gray-500">{{ day.temp_min }}° - {{ day.temp_max }}°</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Budget Breakdown -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-pie text-green-600 mr-2"></i>
+                        Budget Breakdown
+                    </h3>
+                    <div class="space-y-3">
+                        {% for category, amount in itinerary.cost_breakdown.items %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 capitalize">{{ category }}</span>
+                            <span class="font-bold text-gray-800">{{ trip_request.currency }} {{ amount|floatformat:2 }}</span>
+                        </div>
+                        {% endfor %}
+                        <div class="pt-3 border-t-2 border-gray-300 flex justify-between items-center">
+                            <span class="font-bold text-gray-800">Total</span>
+                            <span class="font-bold text-xl text-green-600">{{ trip_request.currency }} {{ itinerary.total_cost }}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Daily Average</span>
+                            <span class="font-semibold text-gray-800">
+                                {{ trip_request.currency }} {% widthratio itinerary.total_cost trip_request.duration 1%}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Call to Action -->
+                <div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 text-white no-print">
+                    <div class="text-center">
+                        <i class="fas fa-magic text-5xl mb-4 opacity-90"></i>
+                        <h3 class="text-2xl font-bold mb-3">Love This Itinerary?</h3>
+                        <p class="text-blue-100 mb-6">
+                            Create your own personalized travel plan with our AI-powered planner!
+                        </p>
+                        <a href="/" 
+                           class="inline-block w-full bg-white text-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition transform hover:scale-105">
+                            <i class="fas fa-rocket mr-2"></i>Start Planning Now
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Share Options -->
+                <div class="bg-white rounded-xl shadow-lg p-6 no-print">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-share-alt text-blue-600 mr-2"></i>
+                        Share This Trip
+                    </h3>
+                    <div class="space-y-3">
+                        <button onclick="shareOnFacebook()" 
+                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            <i class="fab fa-facebook mr-2"></i>Share on Facebook
+                        </button>
+                        <button onclick="shareOnTwitter()" 
+                                class="w-full px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition">
+                            <i class="fab fa-twitter mr-2"></i>Share on Twitter
+                        </button>
+                        <button onclick="shareOnWhatsApp()" 
+                                class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                            <i class="fab fa-whatsapp mr-2"></i>Share on WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400 mb-2">
+                Created with <i class="fas fa-heart text-red-500"></i> by AI Travel Planner
+            </p>
+            <p class="text-sm text-gray-500">
+                <a href="/" class="hover:text-blue-400 transition">Create Your Own Itinerary</a> | 
+                <a href="/about" class="hover:text-blue-400 transition ml-2">About Us</a> | 
+                <a href="/privacy" class="hover:text-blue-400 transition ml-2">Privacy Policy</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Copy share link to clipboard
+        function copyShareLink() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                // Show success message
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+                btn.classList.add('bg-green-600');
+                btn.classList.remove('bg-blue-600');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('bg-green-600');
+                    btn.classList.add('bg-blue-600');
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy link. Please copy manually: ' + url);
+            });
+        }
+
+        // Social sharing functions
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out this amazing travel itinerary!');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out this amazing travel itinerary: ');
+            window.open(`https://wa.me/?text=${text}${url}`, '_blank');
+        }
+    </script>
+</body>
+</html>

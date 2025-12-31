@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - AI Travel Planner{% endblock %}
+
+{% block content %}
+<section class="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white overflow-hidden">
+    <div class="absolute inset-0 bg-black opacity-10"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
+                Plan Your Perfect Trip with AI
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
+                Get personalized travel itineraries in minutes. Powered by advanced AI to create your dream vacation.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'trips:plan_trip' %}" 
+                       class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-magic mr-2"></i>Start Planning Now
+                    </a>
+                    <a href="{% url 'trips:my_trips' %}" 
+                       class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition">
+                        <i class="fas fa-suitcase mr-2"></i>My Trips
+                    </a>
+                {% else %}
+                    <a href="{% url 'users:register' %}" 
+                       class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-user-plus mr-2"></i>Get Started Free
+                    </a>
+                    <a href="{% url 'core:how_it_works' %}" 
+                       class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition">
+                        <i class="fas fa-info-circle mr-2"></i>Learn More
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#F9FAFB"/>
+        </svg>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Why Choose AI Travel Planner?</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Experience the future of travel planning with our intelligent AI-powered platform
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                    <i class="fas fa-robot text-3xl text-blue-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">AI-Powered Planning</h3>
+                <p class="text-gray-600">
+                    Our advanced AI creates personalized itineraries based on your preferences, budget, and travel style in minutes.
+                </p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                    <i class="fas fa-dollar-sign text-3xl text-green-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Budget Optimization</h3>
+                <p class="text-gray-600">
+                    Get detailed cost breakdowns and stay within your budget with smart recommendations for every expense.
+                </p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                    <i class="fas fa-map-marked-alt text-3xl text-purple-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Local Experiences</h3>
+                <p class="text-gray-600">
+                    Discover hidden gems and authentic local experiences curated specifically for your destination.
+                </p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                    <i class="fas fa-cloud-sun text-3xl text-yellow-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Weather Integration</h3>
+                <p class="text-gray-600">
+                    Real-time weather forecasts integrated into your itinerary to help you plan the perfect activities.
+                </p>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                    <i class="fas fa-comments text-3xl text-red-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Interactive Refinement</h3>
+                <p class="text-gray-600">
+                    Not satisfied? Chat with our AI to refine your itinerary until it's perfect for you.
+                </p>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                <div class="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                    <i class="fas fa-share-alt text-3xl text-indigo-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Easy Sharing</h3>
+                <p class="text-gray-600">
+                    Export your itinerary as PDF or share it with friends and family with a simple link.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-gray-100 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">How It Works</h2>
+            <p class="text-xl text-gray-600">Simple, fast, and personalized in just 3 steps</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Step 1 -->
+            <div class="relative">
+                <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                    <div class="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+                        1
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Enter Trip Details</h3>
+                    <p class="text-gray-600">
+                        Tell us where you want to go, your budget, travel dates, and preferences
+                    </p>
+                </div>
+                <div class="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+                    <i class="fas fa-arrow-right text-4xl text-blue-300"></i>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="relative">
+                <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                    <div class="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+                        2
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">AI Creates Itinerary</h3>
+                    <p class="text-gray-600">
+                        Our AI analyzes your preferences and generates a personalized day-by-day plan
+                    </p>
+                </div>
+                <div class="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+                    <i class="fas fa-arrow-right text-4xl text-blue-300"></i>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div class="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+                    3
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Refine & Travel</h3>
+                <p class="text-gray-600">
+                    Review, refine with AI chat, and export your perfect itinerary
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl font-bold mb-6">Ready to Plan Your Next Adventure?</h2>
+        <p class="text-xl mb-8">Join thousands of travelers who trust AI Travel Planner for their trips</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'trips:plan_trip' %}" 
+               class="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition transform hover:scale-105 shadow-lg">
+                <i class="fas fa-rocket mr-2"></i>Start Planning Now
+            </a>
+        {% else %}
+            <a href="{% url 'users:register' %}" 
+               class="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition transform hover:scale-105 shadow-lg">
+                <i class="fas fa-user-plus mr-2"></i>Sign Up Free
+            </a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">What Travelers Say</h2>
+            <p class="text-xl text-gray-600">Real experiences from real travelers</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Testimonial 1 -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">Sarah Johnson</h4>
+                        <div class="text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-gray-600 italic">
+                    "The AI created an amazing itinerary for my Paris trip. It saved me hours of research and included places I never would have found on my own!"
+                </p>
+            </div>
+            
+            <!-- Testimonial 2 -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">Michael Chen</h4>
+                        <div class="text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-gray-600 italic">
+                    "The budget breakdown was incredibly accurate. I stayed within my budget and had an amazing time in Tokyo. Highly recommend!"
+                </p>
+            </div>
+            
+            <!-- Testimonial 3 -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user text-purple-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">Emma Rodriguez</h4>
+                        <div class="text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-gray-600 italic">
+                    "Perfect for families! The AI understood our needs and created an itinerary that kept both kids and parents happy. Game changer!"
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

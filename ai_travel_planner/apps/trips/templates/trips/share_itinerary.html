@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+
+{% block title %}Share Itinerary - {{ itinerary.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
+                <i class="fas fa-share-alt text-white text-2xl"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Share Your Travel Plan</h1>
+            <p class="text-gray-600">Let others see your amazing itinerary for {{ itinerary.trip_request.destination }}</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
+            
+            <!-- Trip Preview -->
+            <div class="bg-gradient-to-r from-blue-500 to-purple-500 p-8 text-white">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-2">{{ itinerary.title }}</h2>
+                        <p class="text-blue-100 mb-4">{{ itinerary.description }}</p>
+                        <div class="flex flex-wrap gap-4 text-sm">
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                {{ itinerary.trip_request.duration }} Days
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-dollar-sign mr-2"></i>
+                                {{ itinerary.trip_request.currency }} {{ itinerary.total_cost }}
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-eye mr-2"></i>
+                                {{ itinerary.times_viewed }} Views
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'trips:itinerary_detail' itinerary.id %}" 
+                       class="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </a>
+                </div>
+            </div>
+
+            <!-- Share Options -->
+            <div class="p-8" x-data="shareHandler()">
+                
+                <!-- Share Link Section -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-link text-blue-600 mr-2"></i>
+                        Share Link
+                    </h3>
+                    <p class="text-gray-600 mb-4">Copy this link to share your itinerary with anyone</p>
+                    
+                    <div class="flex gap-3 mb-4">
+                        <div class="flex-1 relative">
+                            <input type="text" 
+                                   id="share-link"
+                                   readonly
+                                   :value="shareUrl"
+                                   class="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:border-blue-500 font-mono text-sm">
+                            <button @click="copyLink()" 
+                                    class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-blue-600 transition">
+                                <i class="fas" :class="copied ? 'fa-check text-green-600' : 'fa-copy'"></i>
+                            </button>
+                        </div>
+                        <button @click="copyLink()"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-md hover:shadow-lg">
+                            <i class="fas fa-copy mr-2"></i>
+                            <span x-text="copied ? 'Copied!' : 'Copy Link'"></span>
+                        </button>
+                    </div>
+
+                    <!-- QR Code Section -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-qrcode text-3xl text-gray-600"></i>
+                                <div>
+                                    <p class="font-semibold text-gray-800">QR Code</p>
+                                    <p class="text-sm text-gray-600">Scan to open itinerary</p>
+                                </div>
+                            </div>
+                            <button @click="showQR = !showQR"
+                                    class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                                <i class="fas" :class="showQR ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                <span class="ml-2" x-text="showQR ? 'Hide' : 'Show'"></span>
+                            </button>
+                        </div>
+                        
+                        <!-- QR Code Display -->
+                        <div x-show="showQR" x-transition class="mt-4 text-center">
+                            <div class="inline-block bg-white p-4 rounded-lg shadow-md">
+                                <div id="qrcode"></div>
+                                <p class="text-xs text-gray-500 mt-2">Scan with your phone camera</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Sharing -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-share-nodes text-purple-600 mr-2"></i>
+                        Share on Social Media
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        
+                        <!-- Facebook -->
+                        <button @click="shareOnFacebook()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition transform hover:scale-105 shadow-md">
+                            <i class="fab fa-facebook text-xl"></i>
+                            <span class="font-semibold">Facebook</span>
+                        </button>
+
+                        <!-- Twitter -->
+                        <button @click="shareOnTwitter()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition transform hover:scale-105 shadow-md">
+                            <i class="fab fa-twitter text-xl"></i>
+                            <span class="font-semibold">Twitter</span>
+                        </button>
+
+                        <!-- WhatsApp -->
+                        <button @click="shareOnWhatsApp()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition transform hover:scale-105 shadow-md">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                            <span class="font-semibold">WhatsApp</span>
+                        </button>
+
+                        <!-- Email -->
+                        <button @click="shareViaEmail()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition transform hover:scale-105 shadow-md">
+                            <i class="fas fa-envelope text-xl"></i>
+                            <span class="font-semibold">Email</span>
+                        </button>
+
+                        <!-- LinkedIn -->
+                        <button @click="shareOnLinkedIn()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition transform hover:scale-105 shadow-md">
+                            <i class="fab fa-linkedin text-xl"></i>
+                            <span class="font-semibold">LinkedIn</span>
+                        </button>
+
+                        <!-- Pinterest -->
+                        <button @click="shareOnPinterest()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition transform hover:scale-105 shadow-md">
+                            <i class="fab fa-pinterest text-xl"></i>
+                            <span class="font-semibold">Pinterest</span>
+                        </button>
+
+                        <!-- Reddit -->
+                        <button @click="shareOnReddit()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition transform hover:scale-105 shadow-md">
+                            <i class="fab fa-reddit text-xl"></i>
+                            <span class="font-semibold">Reddit</span>
+                        </button>
+
+                        <!-- Telegram -->
+                        <button @click="shareOnTelegram()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition transform hover:scale-105 shadow-md">
+                            <i class="fab fa-telegram text-xl"></i>
+                            <span class="font-semibold">Telegram</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Embed Code -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-code text-green-600 mr-2"></i>
+                        Embed on Your Website
+                    </h3>
+                    <p class="text-gray-600 mb-4">Copy this code to embed the itinerary on your blog or website</p>
+                    
+                    <div class="relative">
+                        <textarea id="embed-code"
+                                  readonly
+                                  rows="4"
+                                  :value="embedCode"
+                                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:border-green-500 font-mono text-xs resize-none"></textarea>
+                        <button @click="copyEmbed()"
+                                class="absolute top-2 right-2 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition">
+                            <i class="fas" :class="embedCopied ? 'fa-check' : 'fa-copy'"></i>
+                            <span class="ml-1" x-text="embedCopied ? 'Copied!' : 'Copy'"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-6">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-info-circle text-blue-600 text-xl mt-1"></i>
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-2">Privacy & Sharing Info</h4>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li><i class="fas fa-check text-green-600 mr-2"></i>Anyone with the link can view this itinerary</li>
+                                <li><i class="fas fa-check text-green-600 mr-2"></i>Viewers cannot edit or modify your plan</li>
+                                <li><i class="fas fa-check text-green-600 mr-2"></i>You can disable sharing anytime from your itinerary page</li>
+                                <li><i class="fas fa-check text-green-600 mr-2"></i>View count is tracked for your reference</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <i class="fas fa-eye text-blue-600 text-3xl mb-2"></i>
+                <p class="text-2xl font-bold text-gray-800">{{ itinerary.times_viewed }}</p>
+                <p class="text-sm text-gray-600">Total Views</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <i class="fas fa-map-marker-alt text-purple-600 text-3xl mb-2"></i>
+                <p class="text-2xl font-bold text-gray-800">{{ itinerary.activities.count }}</p>
+                <p class="text-sm text-gray-600">Activities</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <i class="fas fa-calendar text-green-600 text-3xl mb-2"></i>
+                <p class="text-2xl font-bold text-gray-800">{{ itinerary.trip_request.duration }}</p>
+                <p class="text-sm text-gray-600">Days</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- QR Code Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+function shareHandler() {
+    return {
+        shareUrl: '{{ share_url }}',
+        embedCode: '<iframe src="{{ share_url }}" width="100%" height="600" frameborder="0"></iframe>',
+        copied: false,
+        embedCopied: false,
+        showQR: false,
+        qrGenerated: false,
+        
+        init() {
+            // Watch for QR show toggle
+            this.$watch('showQR', (value) => {
+                if (value && !this.qrGenerated) {
+                    this.generateQRCode();
+                }
+            });
+        },
+        
+        generateQRCode() {
+            // Clear any existing QR code
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+            
+            // Generate new QR code
+            new QRCode(qrDiv, {
+                text: this.shareUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#1e40af',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            this.qrGenerated = true;
+        },
+        
+        async copyLink() {
+            try {
+                await navigator.clipboard.writeText(this.shareUrl);
+                this.copied = true;
+                setTimeout(() => this.copied = false, 2000);
+            } catch (err) {
+                // Fallback for older browsers
+                const input = document.getElementById('share-link');
+                input.select();
+                document.execCommand('copy');
+                this.copied = true;
+                setTimeout(() => this.copied = false, 2000);
+            }
+        },
+        
+        async copyEmbed() {
+            try {
+                await navigator.clipboard.writeText(this.embedCode);
+                this.embedCopied = true;
+                setTimeout(() => this.embedCopied = false, 2000);
+            } catch (err) {
+                const textarea = document.getElementById('embed-code');
+                textarea.select();
+                document.execCommand('copy');
+                this.embedCopied = true;
+                setTimeout(() => this.embedCopied = false, 2000);
+            }
+        },
+        
+        shareOnFacebook() {
+            const url = encodeURIComponent(this.shareUrl);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+        },
+        
+        shareOnTwitter() {
+            const url = encodeURIComponent(this.shareUrl);
+            const text = encodeURIComponent('Check out my travel itinerary for {{ itinerary.trip_request.destination }}!');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400');
+        },
+        
+        shareOnWhatsApp() {
+            const text = encodeURIComponent(`Check out my travel itinerary for {{ itinerary.trip_request.destination }}! ${this.shareUrl}`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        },
+        
+        shareViaEmail() {
+            const subject = encodeURIComponent('Check out my travel itinerary!');
+            const body = encodeURIComponent(`I wanted to share my travel plan for {{ itinerary.trip_request.destination }} with you!\n\nView it here: ${this.shareUrl}`);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        },
+        
+        shareOnLinkedIn() {
+            const url = encodeURIComponent(this.shareUrl);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+        },
+        
+        shareOnPinterest() {
+            const url = encodeURIComponent(this.shareUrl);
+            const description = encodeURIComponent('{{ itinerary.title }}');
+            window.open(`https://pinterest.com/pin/create/button/?url=${url}&description=${description}`, '_blank', 'width=600,height=400');
+        },
+        
+        shareOnReddit() {
+            const url = encodeURIComponent(this.shareUrl);
+            const title = encodeURIComponent('{{ itinerary.title }}');
+            window.open(`https://reddit.com/submit?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
+        },
+        
+        shareOnTelegram() {
+            const url = encodeURIComponent(this.shareUrl);
+            const text = encodeURIComponent('Check out my travel itinerary!');
+            window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+        }
+    }
+}
+</script>
+
+{% endblock %}

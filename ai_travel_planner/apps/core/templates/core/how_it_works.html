@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}How It Works - AI Travel Planner{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-5xl font-bold mb-6">How AI Travel Planner Works</h1>
+        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
+            Discover how we use cutting-edge AI to create your perfect travel itinerary in minutes
+        </p>
+    </div>
+</section>
+
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="space-y-24">
+            
+            <!-- Step 1 -->
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <div class="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mb-6">
+                        1
+                    </div>
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">Tell Us Your Preferences</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Share your destination, dates, budget, and travel style. The more details you provide, the more personalized your itinerary will be.
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Choose from 8 different travel styles</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Set your budget and preferred currency</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Add interests and dietary restrictions</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="lg:w-1/2">
+                    <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 shadow-xl">
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-map-marker-alt text-blue-600 text-2xl mr-3"></i>
+                                <div class="flex-grow">
+                                    <p class="text-sm text-gray-500">Destination</p>
+                                    <p class="font-bold text-gray-800">Paris, France</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">Duration</p>
+                                    <p class="font-semibold">7 days</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">Budget</p>
+                                    <p class="font-semibold">$2,500</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="flex flex-col lg:flex-row-reverse items-center gap-12">
+                <div class="lg:w-1/2">
+                    <div class="bg-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mb-6">
+                        2
+                    </div>
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">AI Creates Your Itinerary</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Our advanced AI analyzes thousands of data points to create a personalized day-by-day itinerary tailored to your preferences.
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-robot text-purple-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">GPT-4 powered intelligent planning</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-cloud-sun text-purple-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Real-time weather integration</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-map text-purple-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Smart location clustering to save time</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-calculator text-purple-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Accurate cost estimation</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="lg:w-1/2">
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 shadow-xl">
+                        <div class="space-y-3">
+                            <div class="bg-white rounded-lg p-4 shadow-md animate-pulse">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-blue-200 rounded-full mr-3"></div>
+                                    <div class="flex-grow">
+                                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                        <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center text-purple-600">
+                                <i class="fas fa-magic text-3xl animate-bounce"></i>
+                                <span class="ml-3 text-lg font-semibold">AI is working...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mb-6">
+                        3
+                    </div>
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">Review & Refine</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Review your personalized itinerary and make changes using our AI chat feature. Not happy with a day? Regenerate it instantly!
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-comments text-green-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Chat with AI to make adjustments</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-redo text-green-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Regenerate specific days</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-edit text-green-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Add or remove activities</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="lg:w-1/2">
+                    <div class="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8 shadow-xl">
+                        <div class="bg-white rounded-xl p-6 shadow-lg">
+                            <h3 class="font-bold text-gray-800 mb-3">Day 1: Exploring Paris</h3>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2">09:00</span>
+                                    <span class="text-gray-700">Eiffel Tower Visit</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2">12:00</span>
+                                    <span class="text-gray-700">Lunch at Le Café</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2">14:00</span>
+                                    <span class="text-gray-700">Louvre Museum</span>
+                                </div>
+                            </div>
+                            <button class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                                <i class="fas fa-check mr-2"></i>Looks Perfect!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="flex flex-col lg:flex-row-reverse items-center gap-12">
+                <div class="lg:w-1/2">
+                    <div class="bg-orange-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mb-6">
+                        4
+                    </div>
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">Export & Travel</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Download your itinerary as PDF, share it with travel companions, or access it anytime from your dashboard. Now you're ready to travel!
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-file-pdf text-orange-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Export as beautiful PDF</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-share-alt text-orange-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Share with friends and family</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-mobile-alt text-orange-500 mr-3 mt-1"></i>
+                            <span class="text-gray-700">Access on any device</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="lg:w-1/2">
+                    <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-8 shadow-xl">
+                        <div class="grid grid-cols-2 gap-4">
+                            <button class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition text-center">
+                                <i class="fas fa-file-pdf text-red-500 text-4xl mb-3"></i>
+                                <p class="font-semibold text-gray-800">Export PDF</p>
+                            </button>
+                            <button class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition text-center">
+                                <i class="fas fa-share-alt text-blue-500 text-4xl mb-3"></i>
+                                <p class="font-semibold text-gray-800">Share Link</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-gray-50 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-center text-gray-800 mb-4">Powered by Advanced Technology</h2>
+        <p class="text-xl text-center text-gray-600 mb-16 max-w-3xl mx-auto">
+            We use the latest AI and travel APIs to give you the best planning experience
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="bg-white rounded-xl p-6 shadow-lg text-center">
+                <i class="fas fa-brain text-4xl text-blue-600 mb-4"></i>
+                <h3 class="font-bold text-gray-800 mb-2">GPT-4 AI</h3>
+                <p class="text-sm text-gray-600">Powered by OpenAI's most advanced language model</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-lg text-center">
+                <i class="fas fa-cloud-sun text-4xl text-yellow-500 mb-4"></i>
+                <h3 class="font-bold text-gray-800 mb-2">Real Weather</h3>
+                <p class="text-sm text-gray-600">Live weather data integrated into planning</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-lg text-center">
+                <i class="fas fa-map text-4xl text-green-600 mb-4"></i>
+                <h3 class="font-bold text-gray-800 mb-2">Google Maps</h3>
+                <p class="text-sm text-gray-600">Accurate locations and travel times</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-lg text-center">
+                <i class="fas fa-database text-4xl text-purple-600 mb-4"></i>
+                <h3 class="font-bold text-gray-800 mb-2">Smart Caching</h3>
+                <p class="text-sm text-gray-600">Fast responses with intelligent data storage</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl font-bold mb-6">Ready to Experience AI Travel Planning?</h2>
+        <p class="text-xl mb-8">Create your first itinerary in less than 3 minutes</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'trips:plan_trip' %}" 
+               class="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition transform hover:scale-105 shadow-lg">
+                <i class="fas fa-magic mr-2"></i>Start Planning Now
+            </a>
+        {% else %}
+            <a href="{% url 'users:register' %}" 
+               class="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition transform hover:scale-105 shadow-lg">
+                <i class="fas fa-user-plus mr-2"></i>Get Started Free
+            </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

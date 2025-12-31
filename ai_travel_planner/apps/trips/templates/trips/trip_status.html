@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Processing Trip - AI Travel Planner{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-2xl shadow-xl p-12" x-data="tripStatus()">
+        
+        {% if is_processing %}
+            <div class="text-center">
+                <div class="mb-8">
+                    <div class="inline-block relative">
+                        <i class="fas fa-globe text-8xl text-blue-600 animate-spin-slow"></i>
+                        <i class="fas fa-magic absolute top-0 right-0 text-3xl text-purple-600 animate-bounce"></i>
+                    </div>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                    Creating Your Perfect Itinerary
+                </h1>
+                
+                <p class="text-xl text-gray-600 mb-8">
+                    Our AI is analyzing your preferences and crafting a personalized travel plan...
+                </p>
+                
+                <div class="max-w-2xl mx-auto mb-12">
+                    <div class="space-y-4">
+                        <div class="flex items-center" :class="step >= 1 ? 'opacity-100' : 'opacity-30'">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                                 :class="step >= 1 ? 'bg-green-500' : 'bg-gray-300'">
+                                <i class="fas fa-check text-white" x-show="step >= 1"></i>
+                                <span class="text-white" x-show="step < 1">1</span>
+                            </div>
+                            <div class="ml-4 flex-grow">
+                                <p class="font-semibold text-left">Analyzing destination</p>
+                            </div>
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-xl" x-show="step === 1"></i>
+                        </div>
+                        
+                        <div class="flex items-center" :class="step >= 2 ? 'opacity-100' : 'opacity-30'">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                                 :class="step >= 2 ? 'bg-green-500' : 'bg-gray-300'">
+                                <i class="fas fa-check text-white" x-show="step >= 2"></i>
+                                <span class="text-white" x-show="step < 2">2</span>
+                            </div>
+                            <div class="ml-4 flex-grow">
+                                <p class="font-semibold text-left">Gathering weather and location data</p>
+                            </div>
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-xl" x-show="step === 2"></i>
+                        </div>
+                        
+                        <div class="flex items-center" :class="step >= 3 ? 'opacity-100' : 'opacity-30'">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                                 :class="step >= 3 ? 'bg-green-500' : 'bg-gray-300'">
+                                <i class="fas fa-check text-white" x-show="step >= 3"></i>
+                                <span class="text-white" x-show="step < 3">3</span>
+                            </div>
+                            <div class="ml-4 flex-grow">
+                                <p class="font-semibold text-left">Generating day-by-day itinerary</p>
+                            </div>
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-xl" x-show="step === 3"></i>
+                        </div>
+                        
+                        <div class="flex items-center" :class="step >= 4 ? 'opacity-100' : 'opacity-30'">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                                 :class="step >= 4 ? 'bg-green-500' : 'bg-gray-300'">
+                                <i class="fas fa-check text-white" x-show="step >= 4"></i>
+                                <span class="text-white" x-show="step < 4">4</span>
+                            </div>
+                            <div class="ml-4 flex-grow">
+                                <p class="font-semibold text-left">Curating local experiences</p>
+                            </div>
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-xl" x-show="step === 4"></i>
+                        </div>
+                        
+                        <div class="flex items-center" :class="step >= 5 ? 'opacity-100' : 'opacity-30'">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                                 :class="step >= 5 ? 'bg-green-500' : 'bg-gray-300'">
+                                <i class="fas fa-check text-white" x-show="step >= 5"></i>
+                                <span class="text-white" x-show="step < 5">5</span>
+                            </div>
+                            <div class="ml-4 flex-grow">
+                                <p class="font-semibold text-left">Optimizing budget and costs</p>
+                            </div>
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-xl" x-show="step === 5"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="max-w-md mx-auto mb-8">
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 h-3 rounded-full transition-all duration-1000"
+                             :style="`width: ${progress}%`"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2" x-text="`${progress}% complete`"></p>
+                </div>
+                
+                <p class="text-gray-500">
+                    <i class="fas fa-clock mr-2"></i>
+                    Estimated time remaining: <span x-text="timeRemaining"></span>
+                </p>
+            </div>
+            
+        {% elif is_completed %}
+            <div class="text-center">
+                <i class="fas fa-check-circle text-8xl text-green-500 mb-6"></i>
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                    Your Itinerary is Ready!
+                </h1>
+                <p class="text-xl text-gray-600 mb-8">
+                    Redirecting you to your personalized travel plan...
+                </p>
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            </div>
+            
+        {% elif is_failed %}
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle text-8xl text-red-500 mb-6"></i>
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                    Oops! Something Went Wrong
+                </h1>
+                <p class="text-xl text-gray-600 mb-4">
+                    We encountered an error while creating your itinerary.
+                </p>
+                {% if trip_request.error_message %}
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
+                        <p class="text-sm text-red-800">{{ trip_request.error_message }}</p>
+                    </div>
+                {% endif %}
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'trips:plan_trip' %}" 
+                       class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-redo mr-2"></i>Try Again
+                    </a>
+                    <a href="{% url 'trips:my_trips' %}" 
+                       class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to My Trips
+                    </a>
+                </div>
+            </div>
+            
+        {% endif %}
+    </div>
+    
+    <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Trip Details</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center">
+                <i class="fas fa-map-marker-alt text-blue-600 mr-3"></i>
+                <div>
+                    <p class="text-sm text-gray-500">Destination</p>
+                    <p class="font-semibold">{{ trip_request.destination }}</p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-calendar text-blue-600 mr-3"></i>
+                <div>
+                    <p class="text-sm text-gray-500">Dates</p>
+                    <p class="font-semibold">{{ trip_request.start_date }} ({{ trip_request.duration }} days)</p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-dollar-sign text-blue-600 mr-3"></i>
+                <div>
+                    <p class="text-sm text-gray-500">Budget</p>
+                    <p class="font-semibold">{{ trip_request.currency }} {{ trip_request.budget }}</p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-hiking text-blue-600 mr-3"></i>
+                <div>
+                    <p class="text-sm text-gray-500">Travel Style</p>
+                    <p class="font-semibold">{{ trip_request.get_travel_style_display }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+}
+</style>
+
+<script>
+function tripStatus() {
+    return {
+        step: 1,
+        progress: 0,
+        timeRemaining: '2-3 minutes',
+        
+        init() {
+            {% if is_processing %}
+                this.simulateProgress();
+                this.checkStatus();
+            {% endif %}
+        },
+        
+        simulateProgress() {
+            const stepInterval = setInterval(() => {
+                if (this.step < 5) {
+                    this.step++;
+                    this.progress = this.step * 20;
+                    
+                    const remaining = ['2 minutes', '90 seconds', '1 minute', '30 seconds', '10 seconds'];
+                    this.timeRemaining = remaining[this.step - 1];
+                } else {
+                    clearInterval(stepInterval);
+                }
+            }, 15000); 
+        },
+        
+        checkStatus() {
+            const statusCheck = setInterval(() => {
+                fetch('{% url "trips:check_status_api" trip_request.id %}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'completed') {
+                            clearInterval(statusCheck);
+                            if (data.itinerary_url) {
+                                window.location.href = data.itinerary_url;
+                            }
+                        } else if (data.status === 'failed') {
+                            clearInterval(statusCheck);
+                            window.location.reload();
+                        }
+                    })
+                    .catch(error => console.error('Error checking status:', error));
+            }, 5000); 
+        }
+    }
+}
+</script>
+{% endblock %}

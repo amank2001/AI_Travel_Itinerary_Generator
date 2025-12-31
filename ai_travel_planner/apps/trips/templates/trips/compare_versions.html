@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Compare Versions - {{ trip_request.destination }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                        <i class="fas fa-code-compare text-purple-600 mr-3"></i>
+                        Compare Versions
+                    </h1>
+                    <p class="text-gray-600">
+                        Comparing Version {{ version1.version }} with Version {{ version2.version }}
+                    </p>
+                </div>
+                <a href="{% url 'trips:itinerary_versions' trip_request.id %}" 
+                   class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Versions
+                </a>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Cost Difference</p>
+                        <p class="text-2xl font-bold {% if comparison.cost_diff > 0 %}text-red-600{% elif comparison.cost_diff < 0 %}text-green-600{% else %}text-gray-900{% endif %}">
+                            {% if comparison.cost_diff > 0 %}+{% endif %}{{ comparison.cost_diff|floatformat:2 }}
+                        </p>
+                    </div>
+                    <div class="p-3 {% if comparison.cost_diff > 0 %}bg-red-100{% elif comparison.cost_diff < 0 %}bg-green-100{% else %}bg-gray-100{% endif %} rounded-lg">
+                        <i class="fas fa-coins text-2xl {% if comparison.cost_diff > 0 %}text-red-600{% elif comparison.cost_diff < 0 %}text-green-600{% else %}text-gray-600{% endif %}"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Activity Changes</p>
+                        <p class="text-2xl font-bold text-gray-900">
+                            {% if comparison.activity_count_diff > 0 %}+{% endif %}{{ comparison.activity_count_diff }}
+                        </p>
+                    </div>
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="fas fa-list text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Total Changes</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ comparison.changes|length }}</p>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-lg">
+                        <i class="fas fa-edit text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side by Side Comparison -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Version 1 -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        Version {{ version1.version }}
+                        {% if version1.is_active %}
+                        <span class="ml-2 px-2 py-1 bg-green-500 text-white text-xs rounded-full">ACTIVE</span>
+                        {% endif %}
+                    </h2>
+                    <a href="{% url 'trips:itinerary_detail' version1.id %}" 
+                       class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-sm text-gray-600">Created</span>
+                        <span class="font-semibold text-gray-900">{{ version1.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-sm text-gray-600">Total Cost</span>
+                        <span class="font-semibold text-gray-900">{{ version1.total_cost|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-sm text-gray-600">Activities</span>
+                        <span class="font-semibold text-gray-900">{{ version1.activities.count }}</span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h3 class="font-semibold text-gray-900 mb-3">Days Overview</h3>
+                    {% for day in version1.generated_data.days %}
+                    <div class="mb-2 p-3 bg-blue-50 rounded-lg">
+                        <p class="font-semibold text-blue-900">Day {{ day.day }}</p>
+                        <p class="text-sm text-gray-600">{{ day.activities|length }} activities</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Version 2 -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        Version {{ version2.version }}
+                        {% if version2.is_active %}
+                        <span class="ml-2 px-2 py-1 bg-green-500 text-white text-xs rounded-full">ACTIVE</span>
+                        {% endif %}
+                    </h2>
+                    <a href="{% url 'trips:itinerary_detail' version2.id %}" 
+                       class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-sm text-gray-600">Created</span>
+                        <span class="font-semibold text-gray-900">{{ version2.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-sm text-gray-600">Total Cost</span>
+                        <span class="font-semibold text-gray-900">{{ version2.total_cost|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-sm text-gray-600">Activities</span>
+                        <span class="font-semibold text-gray-900">{{ version2.activities.count }}</span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h3 class="font-semibold text-gray-900 mb-3">Days Overview</h3>
+                    {% for day in version2.generated_data.days %}
+                    <div class="mb-2 p-3 bg-purple-50 rounded-lg">
+                        <p class="font-semibold text-purple-900">Day {{ day.day }}</p>
+                        <p class="text-sm text-gray-600">{{ day.activities|length }} activities</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Changes -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-list-check text-purple-600 mr-2"></i>
+                Detailed Changes
+            </h2>
+
+            {% if comparison.changes %}
+            <div class="space-y-3">
+                {% for change in comparison.changes %}
+                <div class="flex items-start p-4 rounded-lg border-l-4 
+                            {% if change.type == 'added' %}bg-green-50 border-green-500
+                            {% elif change.type == 'removed' %}bg-red-50 border-red-500
+                            {% else %}bg-blue-50 border-blue-500{% endif %}">
+                    <div class="mr-4 mt-1">
+                        {% if change.type == 'added' %}
+                        <i class="fas fa-plus-circle text-green-600 text-xl"></i>
+                        {% elif change.type == 'removed' %}
+                        <i class="fas fa-minus-circle text-red-600 text-xl"></i>
+                        {% else %}
+                        <i class="fas fa-edit text-blue-600 text-xl"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold 
+                                       {% if change.type == 'added' %}text-green-900
+                                       {% elif change.type == 'removed' %}text-red-900
+                                       {% else %}text-blue-900{% endif %}">
+                                {{ change.type|title }}
+                            </span>
+                            <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded">
+                                Day {{ change.day }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-700 mt-1">{{ change.description }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-equals text-gray-300 text-6xl mb-4"></i>
+                <p class="text-gray-500 text-lg">No changes detected between these versions</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

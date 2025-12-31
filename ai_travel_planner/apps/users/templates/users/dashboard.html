@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AI Travel Planner{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Welcome back, {{ user.first_name|default:user.username }}!
+            </h1>
+            <p class="text-gray-600">Here's your travel planning overview</p>
+        </div>
+        <a href="{% url 'trips:plan_trip' %}"
+            class="mt-4 md:mt-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition transform hover:scale-105 shadow-lg">
+            <i class="fas fa-plus mr-2"></i>Plan New Trip
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Trips -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-suitcase text-3xl opacity-80"></i>
+                <span class="text-sm opacity-80">Total</span>
+            </div>
+            <h3 class="text-4xl font-bold mb-1">{{ stats.total_trips }}</h3>
+            <p class="text-sm opacity-90">Trips Planned</p>
+        </div>
+
+        <!-- Completed Trips -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-check-circle text-3xl opacity-80"></i>
+                <span class="text-sm opacity-80">Completed</span>
+            </div>
+            <h3 class="text-4xl font-bold mb-1">{{ stats.completed_trips }}</h3>
+            <p class="text-sm opacity-90">Itineraries Generated</p>
+        </div>
+
+        <!-- Processing -->
+        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-spinner text-3xl opacity-80"></i>
+                <span class="text-sm opacity-80">Active</span>
+            </div>
+            <h3 class="text-4xl font-bold mb-1">{{ stats.processing_trips }}</h3>
+            <p class="text-sm opacity-90">In Progress</p>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-clock text-3xl opacity-80"></i>
+                <span class="text-sm opacity-80">30 Days</span>
+            </div>
+            <h3 class="text-4xl font-bold mb-1">{{ stats.recent_activity }}</h3>
+            <p class="text-sm opacity-90">Recent Trips</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+
+            <!-- Recent Trips -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Recent Trips</h2>
+                    <a href="{% url 'trips:my_trips' %}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                        View All →
+                    </a>
+                </div>
+
+                {% if recent_trips %}
+                <div class="space-y-4">
+                    {% for trip in recent_trips %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="font-bold text-gray-800 text-lg">{{ trip.destination }}</h3>
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                            {% if trip.status == 'completed' %}bg-green-100 text-green-800
+                                            {% elif trip.status == 'processing' %}bg-yellow-100 text-yellow-800
+                                            {% elif trip.status == 'failed' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ trip.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <span><i class="fas fa-calendar mr-1"></i>{{ trip.start_date|date:"M d, Y" }}</span>
+                                    <span><i class="fas fa-clock mr-1"></i>{{ trip.duration }} days</span>
+                                    <span><i class="fas fa-dollar-sign mr-1"></i>{{ trip.currency }} {{ trip.budget}}</span>
+                                </div>
+                            </div>
+                            {% if trip.status == 'completed' %}
+                            {% with trip.itineraries.first as itinerary %}
+                            {% if itinerary %}
+                            <a href="{% url 'trips:itinerary_detail' itinerary.id %}"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold">
+                                View
+                            </a>
+                            {% endif %}
+                            {% endwith %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-suitcase text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600 mb-4">No trips yet</p>
+                    <a href="{% url 'trips:plan_trip' %}"
+                        class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        Plan Your First Trip
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Favorite Itineraries -->
+            {% if favorite_itineraries %}
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-heart text-red-500 mr-2"></i>
+                        Favorite Itineraries
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for itinerary in favorite_itineraries %}
+                    <div
+                        class="border border-gray-200 rounded-lg p-4 hover:border-purple-300 hover:shadow-md transition">
+                        <h3 class="font-bold text-gray-800 mb-2">{{ itinerary.title }}</h3>
+                        <p class="text-sm text-gray-600 mb-3">{{ itinerary.trip_request.destination }}</p>
+                        <a href="{% url 'trips:itinerary_detail' itinerary.id %}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                            View Itinerary →
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+
+            <!-- Top Destinations -->
+            {% if top_destinations %}
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-map-marker-alt text-blue-600 mr-2"></i>
+                    Top Destinations
+                </h3>
+                <div class="space-y-3">
+                    {% for dest in top_destinations %}
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">{{ dest.destination }}</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                            {{ dest.count }} trip{{ dest.count|pluralize }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Travel Style Preferences -->
+            {% if travel_styles %}
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-hiking text-green-600 mr-2"></i>
+                    Travel Preferences
+                </h3>
+                <div class="space-y-3">
+                    {% for style in travel_styles %}
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 capitalize">{{ style.travel_style }}</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                            {{ style.count }}x
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if recent_trips %}
+            <div class="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl shadow-xl p-6 border border-green-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">
+                    <i class="fas fa-dollar-sign text-green-600 mr-2"></i>
+                    Total Budget Planned
+                </h3>
+                <p class="text-3xl font-bold text-gray-800 mb-1">
+                    {{ recent_trips.0.currency }} {{ stats.total_budget|floatformat:0 }}
+                </p>
+                <p class="text-sm text-gray-600">Across all completed trips</p>
+            </div>
+            {% endif %}
+
+
+            <!-- Quick Links -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Links</h3>
+                <div class="space-y-2">
+                    <a href="{% url 'users:profile' %}"
+                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition">
+                        <i class="fas fa-user mr-2"></i>Edit Profile
+                    </a>
+                    <a href="{% url 'trips:my_trips' %}"
+                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition">
+                        <i class="fas fa-list mr-2"></i>All Trips
+                    </a>
+                    <a href="{% url 'core:how_it_works' %}"
+                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition">
+                        <i class="fas fa-question-circle mr-2"></i>How It Works
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

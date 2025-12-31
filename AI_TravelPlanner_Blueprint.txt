@@ -1,0 +1,68 @@
+*******System Architecture Overview*********
+
+User Interface (Django Templates/React)
+           ↓
+Django Views/API Layer
+           ↓
+    ┌──────┴──────┐
+    ↓             ↓
+LangChain      External APIs
+Pipeline       (Weather, Maps, etc.)
+    ↓             ↓
+Vector Store   Database
+(ChromaDB)     (PostgreSQL)
+
+------------------------------------------------------------------------------------
+
+***********AI Pipeline Architecture***********
+
+User Input
+    ↓
+Input Processor
+    ↓
+┌─────────────────────────────────────┐
+│   LangChain Orchestration Layer    │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌──────────────────────────────┐  │
+│  │  1. Destination Analyzer     │  │
+│  │     (LLM + Knowledge Base)   │  │
+│  └──────────────────────────────┘  │
+│              ↓                      │
+│  ┌──────────────────────────────┐  │
+│  │  2. Context Enrichment       │  │
+│  │     (External API Calls)     │  │
+│  │     - Weather API            │  │
+│  │     - Google Places API      │  │
+│  │     - Currency Exchange      │  │
+│  └──────────────────────────────┘  │
+│              ↓                      │
+│  ┌──────────────────────────────┐  │
+│  │  3. Itinerary Generator      │  │
+│  │     (LLM with Structured     │  │
+│  │      Output Parser)          │  │
+│  └──────────────────────────────┘  │
+│              ↓                      │
+│  ┌──────────────────────────────┐  │
+│  │  4. Cost Estimator           │  │
+│  │     (LLM + Pricing Data)     │  │
+│  └──────────────────────────────┘  │
+│              ↓                      │
+│  ┌──────────────────────────────┐  │
+│  │  5. Experience Curator       │  │
+│  │     (RAG + Vector Search)    │  │
+│  └──────────────────────────────┘  │
+│              ↓                      │
+│  ┌──────────────────────────────┐  │
+│  │  6. Response Formatter       │  │
+│  │     (Structured JSON)        │  │
+│  └──────────────────────────────┘  │
+│                                     │
+└─────────────────────────────────────┘
+    ↓
+Save to Database
+    ↓
+Return to User
+
+-------------------------------------------------------------------------------
+
